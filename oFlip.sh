@@ -5,6 +5,8 @@
 # If no device is provided, /dev/video0 is used.
 
 DEVICE=${1:-/dev/video0}
+WIDTH=1920
+HEIGHT=1080
 FPS=60
 
 # Ensure mpv is installed
@@ -26,9 +28,8 @@ else
     VO="drm"
 fi
 
-exec mpv --profile=low-latency --vo=$VO \
+exec mpv --profile=low-latency --vo="$VO" \
     --hwdec=v4l2m2m-copy --vf=hflip --fs \
-    --video-timing-offset=0 --display-fps=$FPS \
-    --cache=no --demuxer-readahead-secs=0 \
-    av://v4l2:$DEVICE
+    --no-audio --untimed --cache=no --demuxer-readahead-secs=0 \
+    av://v4l2:$DEVICE:width=$WIDTH:height=$HEIGHT:fps=$FPS
 
