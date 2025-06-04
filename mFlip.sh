@@ -6,7 +6,6 @@
 
 # Configuration variables
 INPUT_DEVICE="/dev/video0"          # Primary V4L2 device (e.g., USB webcam or v4l2loopback)
-OUTPUT_URL="udp://192.168.1.100:1234"  # Replace with laptop's IP address
 RESOLUTION="1920x1080"              # Output resolution
 FRAMERATE="30"                      # Frames per second
 BITRATE="2000k"                     # Video bitrate (adjust for quality vs. bandwidth)
@@ -61,31 +60,29 @@ while [ $FAIL_COUNT -lt $MAX_FAILS ]; do
 
   if [ $USE_LIBCAMERA -eq 1 ]; then
     # Libcamera pipeline for Raspberry Pi Camera
-    libcamera-vid -t 0 --width 1920 --height 1080 --framerate 30 -o - | ffmpeg \
+    libcamera-vid -t 0 --width 1920 --height 1080 --framerate "$FRAMERATE" -o - | ffmpeg \
       -loglevel debug \
+      -fflags nobuffer -flags low_delay \
       -i pipe: \
       -f rawvideo \
       -pix_fmt yuv420p \
       -vf "hflip" \
-      -c:v libx264 \
-      -preset veryfast \
-      -b:v "$BITRATE" \
-      -fps_mode cfr \
+      -vsync 0 \
       -f sdl2 "Raspberry Pi Display" \
       2>> "$LOG_FILE"
   else
     # V4L2 input for USB webcam or v4l2loopback
     ffmpeg \
       -loglevel debug \
-      -i "$INPUT_DEVICE" \
       -f v4l2 \
       -framerate "$FRAMERATE" \
       -video_size "$RESOLUTION" \
+      -fflags nobuffer -flags low_delay \
+      -i "$INPUT_DEVICE" \
+      -f rawvideo \
+      -pix_fmt yuv420p \
       -vf "hflip" \
-      -c:v libx264 \
-      -preset veryfast \
-      -b:v "$BITRATE" \
-      -fps_mode cfr \
+      -vsync 0 \
       -f sdl2 "Raspberry Pi Display" \
       2>> "$LOG_FILE"
   fi
