@@ -62,7 +62,8 @@ while [ $FAIL_COUNT -lt $MAX_FAILS ]; do
     # Libcamera pipeline for Raspberry Pi Camera
     libcamera-vid -t 0 --width 1920 --height 1080 --framerate "$FRAMERATE" -o - | ffmpeg \
       -loglevel debug \
-      -fflags nobuffer -flags low_delay \
+      -fflags nobuffer \
+      -flags low_delay \
       -i pipe: \
       -f rawvideo \
       -pix_fmt yuv420p \
@@ -77,7 +78,8 @@ while [ $FAIL_COUNT -lt $MAX_FAILS ]; do
       -f v4l2 \
       -framerate "$FRAMERATE" \
       -video_size "$RESOLUTION" \
-      -fflags nobuffer -flags low_delay \
+      -fflags nobuffer \
+      -flags low_delay \
       -i "$INPUT_DEVICE" \
       -f rawvideo \
       -pix_fmt yuv420p \
